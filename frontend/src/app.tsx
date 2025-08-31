@@ -9,6 +9,8 @@ function App() {
 	const fileInputRef = useRef<HTMLInputElement>(null)
 	const [loading, setLoading] = useState<boolean>(false)
 
+	const BACKEND_URL = import.meta.env.VITE_BACKEND_URL
+
 	const handleSubmit = async (e: FormEvent) => {
 		e.preventDefault()
 		setResult('Classificando...')
@@ -28,26 +30,20 @@ function App() {
 			const formData = new FormData()
 			formData.append('file', file)
 
-			const res = await fetch(
-				'https://classificador-de-emails-3d1h.onrender.com/classificar',
-				{
-					method: 'POST',
-					body: formData
-				}
-			)
+			const res = await fetch(`${BACKEND_URL}/classificar`, {
+				method: 'POST',
+				body: formData
+			})
 
 			const data = await res.json()
 			setResult(data)
 		} else {
 			console.log('Enviando texto:', textContent)
-			const res = await fetch(
-				'https://classificador-de-emails-3d1h.onrender.com/classificar',
-				{
-					method: 'POST',
-					headers: { 'Content-Type': 'application/json' },
-					body: JSON.stringify({ text })
-				}
-			)
+			const res = await fetch(`${BACKEND_URL}/classificar`, {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({ text })
+			})
 
 			const data = await res.json()
 			setResult(data)
