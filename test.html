@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+	<head>
+		<meta charset="UTF-8" />
+		<title>Classificador de Emails</title>
+		<script src="https://cdn.tailwindcss.com"></script>
+	</head>
+	<body
+		class="bg-cover bg-center h-screen flex items-center justify-center"
+		style="background-image: url(./frontend/src/assets/bg-image.jpg)">
+		<div
+			class="backdrop-blur-md bg-[rgba(0,0,0,0.5)] rounded-xl p-6 w-[95%] h-[95%] shadow-2xl">
+			<h1 class="text-white text-2xl font-bold text-center mb-6">
+				Classificador de E-mails
+			</h1>
+			<div class="flex flex-row h-full justify-between max-h-[90%]">
+				<form
+					onSubmit="{handleSubmit}"
+					class="space-y-4 w-[47.5%] h-full">
+					<div
+						class="mb-5 flex flex-row item-start items-center gap-5 text-white">
+						<i class="fa-regular fa-circle-question text-xl"></i>
+						<p>
+							Nesta área, você pode copiar o texto do email e
+							colar na área de texto abaixo ou baixar o email em
+							formato .txt ou .pdf e selecioná-los na área de
+							upload.
+						</p>
+					</div>
+					<textarea
+						class="bg-transparent w-full border p-2 rounded-md h-[30%] placeholder-white shadow-lg text-white"
+						placeholder="Cole o texto do e-mail aqui..."></textarea>
+					<div class="flex items-center justify-between">
+						<div class="border w-[45%]"></div>
+						<p class="text-white text-center text-xl">OU</p>
+						<div class="border w-[45%]"></div>
+					</div>
+					<div
+						class="flex flex-col items-center justify-between gap-5">
+						<label
+							class="w-full text-white text-lg border border-dashed px-10 py-10 rounded-md cursor-pointer hover:bg-gray-300 hover:text-black transition shadow-xl w-[45%] text-center"
+							for="file-upload">
+							Clique aqui para carregar um arquivo (.txt ou .pdf)
+						</label>
+						<input
+							type="file"
+							name="file"
+							class="file:hidden text-white border w-full p-5 rounded-md"
+							id="file-upload"
+							translate="yes"
+							accept=".txt,.pdf" />
+						<button
+							type="submit"
+							class="w-full px-4 py-3 rounded-md bg-white hover:bg-gray-300 transition shadow-xl text-lg">
+							Processar
+						</button>
+					</div>
+				</form>
+				<div class="border"></div>
+				<section class="space-y-4 w-[47.5%] h-full">
+					<p class="text-white">
+						Aqui, você verá a classificação do e-mail, assim como a
+						resposta gerada por IA.
+					</p>
+					<section
+						class="relative mt-4 bg-transparent p-4 rounded-md border overflow-auto h-full max-h-[92.5%]">
+						<span class="text-white">Resultado</span>
+						<span
+							class="absolute bottom-2 right-2 text-white hover:bg-gray-100 hover:text-black hover:scale-110 transition rounded-full cursor-pointer flex items-center justify-center p-2">
+							<i
+								class="fa-regular fa-circle-question text-3xl"></i>
+						</span>
+					</section>
+				</section>
+			</div>
+		</div>
+
+		<!-- <p class="absolute bottom-1 left-5 text-white text-xs">
+			Made by:
+			<a
+				href="https://github.com/arthur-qob"
+				target="_blank"
+				class="hover:underline transition">
+				Arthur Quinellato
+			</a>
+		</p> -->
+	</body>
+	<script
+		src="https://kit.fontawesome.com/5fe1b6438c.js"
+		crossorigin="anonymous"></script>
+</html>
