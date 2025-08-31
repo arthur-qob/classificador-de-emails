@@ -28,20 +28,26 @@ function App() {
 			const formData = new FormData()
 			formData.append('file', file)
 
-			const res = await fetch('http://127.0.0.1:5000/classificar', {
-				method: 'POST',
-				body: formData
-			})
+			const res = await fetch(
+				'https://classificador-de-emails-3d1h.onrender.com/classificar',
+				{
+					method: 'POST',
+					body: formData
+				}
+			)
 
 			const data = await res.json()
 			setResult(data)
 		} else {
 			console.log('Enviando texto:', textContent)
-			const res = await fetch('http://127.0.0.1:5000/classificar', {
-				method: 'POST',
-				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify({ text })
-			})
+			const res = await fetch(
+				'https://classificador-de-emails-3d1h.onrender.com/classificar',
+				{
+					method: 'POST',
+					headers: { 'Content-Type': 'application/json' },
+					body: JSON.stringify({ text })
+				}
+			)
 
 			const data = await res.json()
 			setResult(data)
