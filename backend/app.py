@@ -53,8 +53,8 @@ def classify_email():
         return jsonify({"error": "Nenhum texto fornecido"}), 400
 
     categories = [
-        'Email de trabalho urgente, tarefa, solicitação, ou reunião',
-        'Newsletter, marketing, spam, propaganda, ou email pessoal não urgente'
+        'Produtivo',
+        'Improdutivo'
     ]
     headers = {"Authorization": f"Bearer {HF_API_KEY}"}
     processed_text = process_text(email_text)
@@ -78,11 +78,7 @@ def classify_email():
 
     result = response.json()
     
-    best_label_description = result['labels'][0]
-    if 'trabalho urgente' in best_label_description:
-        best_category = 'Produtivo'
-    else:
-        best_category = 'Improdutivo'
+    best_category = result['labels'][0]
     
     best_score = result['scores'][0]
     
