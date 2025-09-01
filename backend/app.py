@@ -53,8 +53,8 @@ def classify_email():
         return jsonify({"error": "Nenhum texto fornecido"}), 400
 
     categories = [
-        'Produtivo',
-        'Improdutivo'
+        'produtivo',
+        'improdutivo'
     ]
     headers = {"Authorization": f"Bearer {HF_API_KEY}"}
     processed_text = process_text(email_text)
