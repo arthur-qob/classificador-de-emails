@@ -1,13 +1,17 @@
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import type { FormEvent } from 'react'
 import bg_img from './assets/bg-image.jpg'
 import Tooltip from '@mui/material/Tooltip'
+import { FileUpload } from './component/fileUpload'
 
 function App() {
 	const [text, setText] = useState('')
 	const [result, setResult] = useState<null | string>(null)
 	const fileInputRef = useRef<HTMLInputElement>(null)
+	const [file, setFile] = useState<File | null>(null)
 	const [loading, setLoading] = useState<boolean>(false)
+	const [disabled, setDisabled] = useState<boolean>(false)
+	const [ready, setReady] = useState<boolean>(false)
 
 	const BACKEND_URL = import.meta.env.VITE_BACKEND_URL
 
@@ -16,7 +20,6 @@ function App() {
 		setResult('Classificando...')
 		setLoading(true)
 
-		const file = fileInputRef.current?.files?.[0]
 		const textContent = text.trim()
 
 		if (!file && !textContent) {
@@ -91,6 +94,18 @@ function App() {
 		document.body.removeChild(tempTextArea)
 	}
 
+	useEffect(() => {
+		if (text !== null && text.trim() !== '') {
+			setDisabled(true)
+		} else setDisabled(false)
+	}, [text])
+
+	useEffect(() => {
+		if ((text !== null && text.trim() !== '') || file !== null) {
+			setReady(true)
+		} else setReady(false)
+	}, [text, file])
+
 	return (
 		<div
 			className={`bg-[url(${bg_img})] bg-cover bg-center h-screen flex items-center justify-center select-none`}>
@@ -116,13 +131,13 @@ function App() {
 						<textarea
 							className={
 								'bg-transparent w-full border p-2 rounded-md h-[25%] placeholder-white shadow-lg text-white' +
-								(loading
+								(loading || file !== null
 									? ' cursor-not-allowed placeholder:text-gray-400 border-gray-400'
 									: '')
 							}
 							placeholder='Cole o texto do e-mail aqui...'
 							value={text}
-							disabled={loading}
+							disabled={loading || file !== null}
 							onChange={(e) => setText(e.target.value)}
 						/>
 						<div className='flex items-center justify-between'>
@@ -130,40 +145,23 @@ function App() {
 							<p className='text-white text-center text-xl'>OU</p>
 							<div className='border w-[45%]'></div>
 						</div>
-						<div className='flex flex-col items-center justify-between gap-5'>
-							<label
-								className={
-									'w-full text-white text-lg border border-dashed px-10 py-10 rounded-md cursor-pointer hover:bg-gray-300 hover:text-black transition shadow-xl w-[45%] text-center' +
-									(loading
-										? ' cursor-not-allowed text-gray-400 border-gray-400'
-										: '')
-								}
-								htmlFor='file-upload'>
-								Clique aqui para carregar um arquivo (.txt ou
-								.pdf)
-							</label>
-							<input
-								type='file'
-								name='file'
-								className='file:hidden text-white border w-full py-4 px-2 rounded-md'
-								id='file-upload'
-								translate='yes'
-								ref={fileInputRef}
-								accept='.txt,.pdf'
-								disabled={loading}
-							/>
-							<button
-								type='submit'
-								className={
-									'w-full px-4 py-2 rounded-md shadow-xl text-lg ' +
-									(loading
-										? 'bg-gray-300 cursor-not-allowed'
-										: 'bg-white hover:bg-gray-300')
-								}
-								disabled={loading}>
-								{loading ? 'Processando...' : 'Processar'}
-							</button>
-						</div>
+						<FileUpload
+							loading={loading}
+							ref={fileInputRef}
+							setFile={setFile}
+							isDisabled={disabled}
+						/>
+						<button
+							type='submit'
+							className={
+								'w-full px-4 py-2 rounded-md shadow-xl text-lg transition ' +
+								(loading || !ready
+									? 'bg-gray-500 cursor-not-allowed'
+									: 'bg-white hover:bg-gray-300')
+							}
+							disabled={loading || !ready}>
+							{loading ? 'Processando...' : 'Processar'}
+						</button>
 					</form>
 					<div className='border'></div>
 					<section className='space-y-4 w-[47.5%] h-full'>
