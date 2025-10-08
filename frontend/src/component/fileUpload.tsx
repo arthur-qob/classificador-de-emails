@@ -69,7 +69,7 @@ export function FileUpload({
 	useEffect(() => {
 		handleLoadingFile()
 		setFile(selectedFile ? selectedFile.file : null)
-	}, [selectedFile])
+	}, [selectedFile, setFile])
 
 	return (
 		<div className='flex flex-col gap-4 text-white'>
@@ -132,7 +132,7 @@ function FileInput({
 
 type FileDisplayProps = {
 	file: FileProgress
-	onRemove: (id: string) => void
+	onRemove: () => void
 	uploading: boolean
 	fileIsReady: boolean
 }
@@ -159,7 +159,7 @@ function FileDisplay({
 
 type FileItemProps = {
 	file: FileProgress
-	onRemove: (id: string) => void
+	onRemove: () => void
 	fileIsReady: boolean
 	uploading: boolean
 }
@@ -185,10 +185,10 @@ function FileItem({ file, onRemove, fileIsReady, uploading }: FileItemProps) {
 				{fileIsReady && (
 					<button
 						disabled={uploading}
-						onClick={() => onRemove(file.id)}>
+						onClick={onRemove}>
 						<i
 							className={`fa-solid fa-trash text-lg ${
-								uploading ?? 'text-grayscale-400'
+								uploading ? 'text-gray-400 cursor-not-allowed' : 'text-red-500'
 							}`}></i>
 					</button>
 				)}
@@ -227,13 +227,14 @@ function LinearProgressWithLabel(
 	)
 }
 
-const getFileIcon = (MimeType: string) => {
+const getFileIcon = (MimeType: string): string => {
 	if (MimeType === 'text/plain') return 'fa-solid fa-file-lines'
 	if (MimeType === 'application/pdf') return 'fa-solid fa-file-pdf'
 	return 'fa-solid fa-file'
 }
 
-const formatFileSize = (bytes: number) => {
+const formatFileSize = (bytes: number): string => {
+	if (bytes === 0) return '0 B'
 	const k = 1024
 	const sizes = ['B', 'KB', 'MB', 'GB']
 	const i = Math.floor(Math.log(bytes) / Math.log(k))

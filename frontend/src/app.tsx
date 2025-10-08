@@ -24,87 +24,87 @@ function App() {
 
 		if (!file && !textContent) {
 			alert('Por favor, insira um texto ou selecione um arquivo.')
+			setLoading(false)
 			return
 		}
 
-		if (file) {
-			console.log('Enviando arquivo:', file.name)
+		try {
+			let res: Response
 
-			const formData = new FormData()
-			formData.append('file', file)
+			if (file) {
+				console.log('Enviando arquivo:', file.name)
+				const formData = new FormData()
+				formData.append('file', file)
 
-			const res = await fetch(`${BACKEND_URL}/classificar`, {
-				method: 'POST',
-				body: formData
-			})
+				res = await fetch(`${BACKEND_URL}/classificar`, {
+					method: 'POST',
+					body: formData
+				})
+			} else {
+				console.log('Enviando texto:', textContent)
+				res = await fetch(`${BACKEND_URL}/classificar`, {
+					method: 'POST',
+					headers: { 'Content-Type': 'application/json' },
+					body: JSON.stringify({ text })
+				})
+			}
+
+			if (!res.ok) {
+				const errorData = await res.json()
+				setResult(errorData.error || 'Erro ao processar requisição')
+				return
+			}
 
 			const data = await res.json()
 			setResult(data)
-		} else {
-			console.log('Enviando texto:', textContent)
-			const res = await fetch(`${BACKEND_URL}/classificar`, {
-				method: 'POST',
-				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify({ text })
-			})
-
-			const data = await res.json()
-			setResult(data)
+		} catch (error) {
+			console.error('Erro na requisição:', error)
+			setResult('Erro de conexão com o servidor. Verifique se o backend está rodando.')
+		} finally {
+			setLoading(false)
 		}
-
-		setLoading(false)
 	}
 
 	const copyTextRef = useRef<HTMLPreElement>(null)
 	const feedbackRef = useRef<HTMLSpanElement>(null)
 
-	const handleCopy = () => {
+	const handleCopy = async () => {
 		const copyText = copyTextRef.current?.innerText
 		const feedback = feedbackRef.current
 
-		const tempTextArea = document.createElement('textarea')
-		tempTextArea.value = copyText || ''
-
-		tempTextArea.style.position = 'fixed'
-		tempTextArea.style.top = '-9999px'
-		tempTextArea.style.left = '-9999px'
-
-		document.body.appendChild(tempTextArea)
-		tempTextArea.focus()
-		tempTextArea.select()
-
-		try {
-			const successful = document.execCommand('copy')
-
-			if (successful) {
-				feedback?.classList.remove('opacity-0')
-				feedback?.classList.add('opacity-1')
-
-				setTimeout(() => {
-					feedback?.classList.remove('opacity-1')
-					feedback?.classList.add('opacity-0')
-				}, 2500)
-			} else {
-				console.error('Falha ao copiar o texto.')
-			}
-		} catch (err) {
-			console.error('Falha ao copiar o texto.', err)
+		if (!copyText) {
+			console.error('Nenhum texto para copiar.')
+			return
 		}
 
-		document.body.removeChild(tempTextArea)
+		try {
+			await navigator.clipboard.writeText(copyText)
+			feedback?.classList.remove('opacity-0')
+			feedback?.classList.add('opacity-1')
+
+			setTimeout(() => {
+				feedback?.classList.remove('opacity-1')
+				feedback?.classList.add('opacity-0')
+			}, 2500)
+		} catch (err) {
+			console.error('Falha ao copiar o texto.', err)
+			alert('Não foi possível copiar o texto.')
+		}
 	}
 
 	useEffect(() => {
-		if (text !== null && text.trim() !== '') {
-			setDisabled(true)
-		} else setDisabled(false)
+		setDisabled(text.trim() !== '')
 	}, [text])
 
 	useEffect(() => {
-		if ((text !== null && text.trim() !== '') || file !== null) {
-			setReady(true)
-		} else setReady(false)
+		setReady(text.trim() !== '' || file !== null)
 	}, [text, file])
+
+	useEffect(() => {
+		if (!BACKEND_URL) {
+			console.error('VITE_BACKEND_URL não está configurado')
+		}
+	}, [BACKEND_URL])
 
 	return (
 		<div
@@ -113,10 +113,10 @@ function App() {
 				<h1 className='text-white text-3xl font-bold text-center mb-10'>
 					Classificador de E-mails
 				</h1>
-				<div className='flex flex-row h-full justify-between max-h-[85%]'>
+				<div className='flex flex-row justify-between gap-6 h-[calc(100%-80px)]'>
 					<form
 						onSubmit={handleSubmit}
-						className='space-y-4 w-[47.5%] h-full'>
+						className='space-y-4 w-[47.5%] flex flex-col'>
 						<div className='flex flex-col gap-2 text-white'>
 							<p className='text-lg'>
 								Nesta área, você pode copiar o texto do email e
@@ -130,7 +130,7 @@ function App() {
 						</div>
 						<textarea
 							className={
-								'bg-transparent w-full border p-2 rounded-md h-[25%] placeholder-white shadow-lg text-white' +
+								'bg-transparent w-full border p-2 rounded-md placeholder-white shadow-lg text-white flex-1' +
 								(loading || file !== null
 									? ' cursor-not-allowed placeholder:text-gray-400 border-gray-400'
 									: '')
@@ -154,7 +154,7 @@ function App() {
 						<button
 							type='submit'
 							className={
-								'w-full px-4 py-2 rounded-md shadow-xl text-lg transition ' +
+								'w-full px-4 py-2 rounded-md shadow-xl text-lg transition flex-shrink-0 ' +
 								(loading || !ready
 									? 'bg-gray-500 cursor-not-allowed'
 									: 'bg-white hover:bg-gray-300')
@@ -163,13 +163,13 @@ function App() {
 							{loading ? 'Processando...' : 'Processar'}
 						</button>
 					</form>
-					<div className='border'></div>
-					<section className='space-y-4 w-[47.5%] h-full'>
+					<div className='border-l border-white self-stretch'></div>
+					<section className='space-y-4 w-[47.5%] flex flex-col h-full'>
 						<p className='text-white text-lg'>
 							Aqui, você verá a classificação do e-mail, assim
 							como a resposta gerada por IA.
 						</p>
-						<div className='relative mt-4 bg-transparent p-4 rounded-md border overflow-auto h-full max-h-[92.5%] text-white'>
+						<div className='relative mt-4 bg-transparent p-4 rounded-md border overflow-auto flex-1 text-white'>
 							{result !== null ? (
 								typeof result === 'object' ? (
 									<div className='flex flex-col gap-5'>
