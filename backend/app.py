@@ -133,7 +133,7 @@ def generate_response_api(category: str, email_text: str) -> str:
         return response_cache[cache_key]
 
     try:
-        model = genai.GenerativeModel('gemini-pro')
+        model = genai.GenerativeModel('gemini-2.5-flash')
 
         if category.lower() == 'produtivo':
             prompt = f"Sugira uma resposta curta e profissional para o seguinte email, acusando o recebimento e informando que a solicitação será processada:\n\nEmail: \"{email_text[:1000]}\"\n\nResposta:"
